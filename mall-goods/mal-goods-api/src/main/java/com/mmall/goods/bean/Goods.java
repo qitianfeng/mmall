@@ -1,14 +1,12 @@
-package com.mmall.goods.bean;
-
+package com.mmall.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.lang.Long;
 import java.util.Date;
-
+import java.lang.String;
+import java.lang.Integer;
 /****
  * @Author:qitianfeng
  * @Description:Goods构建
@@ -19,32 +17,48 @@ public class Goods implements Serializable{
 
 	@ApiModelProperty(value = "商品ID",required = false)
 	@Id
-    @Column(name = "goods_id")
+	@Column(name = "goods_id")
 	private Long goodsId;//商品ID
 
 	@ApiModelProperty(value = "商品名字",required = false)
-    @Column(name = "goods_name")
+	@Column(name = "goods_name")
 	private String goodsName;//商品名字
 
 	@ApiModelProperty(value = "商品价格",required = false)
-    @Column(name = "goods_price")
+	@Column(name = "goods_price")
 	private String goodsPrice;//商品价格
 
 	@ApiModelProperty(value = "商品描述",required = false)
-    @Column(name = "goods_desc")
+	@Column(name = "goods_desc")
 	private String goodsDesc;//商品描述
 
 	@ApiModelProperty(value = "商品添加时间",required = false)
-    @Column(name = "good_add_time")
+	@Column(name = "good_add_time")
 	private Date goodAddTime;//商品添加时间
 
 	@ApiModelProperty(value = "商品图片",required = false)
-    @Column(name = "sgood_image")
+	@Column(name = "sgood_image")
 	private String sgoodImage;//商品图片
 
 	@ApiModelProperty(value = "商品库存",required = false)
-    @Column(name = "good_num")
+	@Column(name = "good_num")
 	private Integer goodNum;//商品库存
+
+	@ApiModelProperty(value = "1 表示商品上架，0 表示商品下架",required = false)
+	@Column(name = "good_status")
+	private Integer goodStatus;//1 表示商品上架，0 表示商品下架
+
+	@ApiModelProperty(value = "商品作者",required = false)
+	@Column(name = "goods_author")
+	private String goodsAuthor;//商品作者
+
+	@ApiModelProperty(value = "商品图片",required = false)
+	@Column(name = "goods_image")
+	private String goodsImage;//商品图片
+
+	@ApiModelProperty(value = "添加时间",required = false)
+	@Column(name = "goods_add_time")
+	private Date goodsAddTime;//添加时间
 
 
 
@@ -110,6 +124,42 @@ public class Goods implements Serializable{
 	//set方法
 	public void setGoodNum(Integer goodNum) {
 		this.goodNum = goodNum;
+	}
+	//get方法
+	public Integer getGoodStatus() {
+		return goodStatus;
+	}
+
+	//set方法
+	public void setGoodStatus(Integer goodStatus) {
+		this.goodStatus = goodStatus;
+	}
+	//get方法
+	public String getGoodsAuthor() {
+		return goodsAuthor;
+	}
+
+	//set方法
+	public void setGoodsAuthor(String goodsAuthor) {
+		this.goodsAuthor = goodsAuthor;
+	}
+	//get方法
+	public String getGoodsImage() {
+		return goodsImage;
+	}
+
+	//set方法
+	public void setGoodsImage(String goodsImage) {
+		this.goodsImage = goodsImage;
+	}
+	//get方法
+	public Date getGoodsAddTime() {
+		return goodsAddTime;
+	}
+
+	//set方法
+	public void setGoodsAddTime(Date goodsAddTime) {
+		this.goodsAddTime = goodsAddTime;
 	}
 
 

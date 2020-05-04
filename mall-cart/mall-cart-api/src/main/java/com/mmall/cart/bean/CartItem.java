@@ -1,14 +1,12 @@
-package com.mmall.cart.bean;
-
+package com.mmall.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.lang.Long;
 import java.util.Date;
-
+import java.lang.String;
+import java.lang.Integer;
 /****
  * @Author:qitianfeng
  * @Description:CartItem构建
@@ -19,39 +17,39 @@ public class CartItem implements Serializable{
 
 	@ApiModelProperty(value = "购物车ID",required = false)
 	@Id
-    @Column(name = "cart_id")
+	@Column(name = "cart_id")
 	private Long cartId;//购物车ID
 
 	@ApiModelProperty(value = "商品ID",required = false)
-    @Column(name = "good_id")
+	@Column(name = "good_id")
 	private Long goodId;//商品ID
 
 	@ApiModelProperty(value = "用户ID",required = false)
-    @Column(name = "user_id")
+	@Column(name = "user_id")
 	private Long userId;//用户ID
 
 	@ApiModelProperty(value = "购买数量",required = false)
-    @Column(name = "quantity")
+	@Column(name = "quantity")
 	private Long quantity;//购买数量
 
 	@ApiModelProperty(value = "商品主图",required = false)
-    @Column(name = "good_pic")
+	@Column(name = "good_pic")
 	private String goodPic;//商品主图
 
 	@ApiModelProperty(value = "商品名字",required = false)
-    @Column(name = "good_name")
+	@Column(name = "good_name")
 	private String goodName;//商品名字
 
 	@ApiModelProperty(value = "创建时间",required = false)
-    @Column(name = "create_date")
+	@Column(name = "create_date")
 	private Date createDate;//创建时间
 
 	@ApiModelProperty(value = "修改时间",required = false)
-    @Column(name = "modify_date")
+	@Column(name = "modify_date")
 	private Date modifyDate;//修改时间
 
 	@ApiModelProperty(value = "删除状态",required = false)
-    @Column(name = "delete_status")
+	@Column(name = "delete_status")
 	private Integer deleteStatus;//删除状态
 
 

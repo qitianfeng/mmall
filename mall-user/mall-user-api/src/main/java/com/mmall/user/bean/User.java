@@ -1,14 +1,12 @@
-package com.mmall.user.bean;
-
+package com.mmall.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.lang.Long;
 import java.util.Date;
-
+import java.lang.String;
+import java.lang.Integer;
 /****
  * @Author:qitianfeng
  * @Description:User构建
@@ -19,36 +17,40 @@ public class User implements Serializable{
 
 	@ApiModelProperty(value = "用户ID",required = false)
 	@Id
-    @Column(name = "user_id")
+	@Column(name = "user_id")
 	private Long userId;//用户ID
 
 	@ApiModelProperty(value = "用户名",required = false)
-    @Column(name = "user_name")
+	@Column(name = "user_name")
 	private String userName;//用户名
 
 	@ApiModelProperty(value = "用户密码",required = false)
-    @Column(name = "user_password")
+	@Column(name = "user_password")
 	private String userPassword;//用户密码
 
 	@ApiModelProperty(value = "用户积分",required = false)
-    @Column(name = "user_score")
+	@Column(name = "user_score")
 	private String userScore;//用户积分
 
 	@ApiModelProperty(value = "用户手机",required = false)
-    @Column(name = "user_mobile")
+	@Column(name = "user_mobile")
 	private String userMobile;//用户手机
 
 	@ApiModelProperty(value = "用户余额",required = false)
-    @Column(name = "user_money")
+	@Column(name = "user_money")
 	private String userMoney;//用户余额
 
 	@ApiModelProperty(value = "用户注册时间",required = false)
-    @Column(name = "user_reg_time")
+	@Column(name = "user_reg_time")
 	private Date userRegTime;//用户注册时间
 
 	@ApiModelProperty(value = "盐",required = false)
-    @Column(name = "salt")
+	@Column(name = "salt")
 	private String salt;//盐
+
+	@ApiModelProperty(value = "0 表示普通用户 1 表示 人民币用户",required = false)
+	@Column(name = "user_status")
+	private Integer userStatus;//0 表示普通用户 1 表示 人民币用户
 
 
 
@@ -123,6 +125,15 @@ public class User implements Serializable{
 	//set方法
 	public void setSalt(String salt) {
 		this.salt = salt;
+	}
+	//get方法
+	public Integer getUserStatus() {
+		return userStatus;
+	}
+
+	//set方法
+	public void setUserStatus(Integer userStatus) {
+		this.userStatus = userStatus;
 	}
 
 

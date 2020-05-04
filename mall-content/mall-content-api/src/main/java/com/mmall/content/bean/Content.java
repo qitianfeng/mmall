@@ -1,11 +1,11 @@
-package com.mmall.content.bean;
-
+package com.mmall.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
 import javax.persistence.*;
 import java.io.Serializable;
-
+import java.lang.Long;
+import java.lang.String;
+import java.lang.Integer;
 /****
  * @Author:qitianfeng
  * @Description:Content构建
@@ -16,32 +16,32 @@ public class Content implements Serializable{
 
 	@ApiModelProperty(value = "",required = false)
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Long id;//
 
 	@ApiModelProperty(value = "内容类目ID",required = false)
-    @Column(name = "good_id")
+	@Column(name = "good_id")
 	private Long goodId;//内容类目ID
 
 	@ApiModelProperty(value = "内容标题",required = false)
-    @Column(name = "title")
+	@Column(name = "title")
 	private String title;//内容标题
 
 	@ApiModelProperty(value = "链接",required = false)
-    @Column(name = "url")
+	@Column(name = "url")
 	private String url;//链接
 
 	@ApiModelProperty(value = "图片绝对路径",required = false)
-    @Column(name = "pic")
+	@Column(name = "pic")
 	private String pic;//图片绝对路径
 
 	@ApiModelProperty(value = "状态,0无效，1有效",required = false)
-    @Column(name = "status")
+	@Column(name = "status")
 	private String status;//状态,0无效，1有效
 
 	@ApiModelProperty(value = "排序",required = false)
-    @Column(name = "sort_order")
+	@Column(name = "sort_order")
 	private Integer sortOrder;//排序
 
 

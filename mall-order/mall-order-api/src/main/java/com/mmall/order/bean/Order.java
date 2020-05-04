@@ -1,14 +1,12 @@
-package com.mmall.order.bean;
-
+package com.mmall.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.lang.Long;
 import java.util.Date;
-
+import java.lang.String;
+import java.lang.Integer;
 /****
  * @Author:qitianfeng
  * @Description:Order构建
@@ -19,39 +17,39 @@ public class Order implements Serializable{
 
 	@ApiModelProperty(value = "订单ID",required = false)
 	@Id
-    @Column(name = "order_id")
+	@Column(name = "order_id")
 	private Long orderId;//订单ID
 
 	@ApiModelProperty(value = "用户ID",required = false)
-    @Column(name = "user_id")
+	@Column(name = "user_id")
 	private Long userId;//用户ID
 
 	@ApiModelProperty(value = "创建时间",required = false)
-    @Column(name = "create_time")
+	@Column(name = "create_time")
 	private Date createTime;//创建时间
 
 	@ApiModelProperty(value = "用户名",required = false)
-    @Column(name = "user_name")
+	@Column(name = "user_name")
 	private String userName;//用户名
 
 	@ApiModelProperty(value = "订单总金额",required = false)
-    @Column(name = "total_amount")
+	@Column(name = "total_amount")
 	private String totalAmount;//订单总金额
 
 	@ApiModelProperty(value = "应付金额（实际支付金额）",required = false)
-    @Column(name = "pay_amount")
+	@Column(name = "pay_amount")
 	private String payAmount;//应付金额（实际支付金额）
 
 	@ApiModelProperty(value = "支付方式：0->未支付；1->支付宝；",required = false)
-    @Column(name = "pay_type")
+	@Column(name = "pay_type")
 	private Integer payType;//支付方式：0->未支付；1->支付宝；
 
 	@ApiModelProperty(value = "用户余额",required = false)
-    @Column(name = "money_amount")
+	@Column(name = "money_amount")
 	private String moneyAmount;//用户余额
 
 	@ApiModelProperty(value = "支付时间",required = false)
-    @Column(name = "payment_time")
+	@Column(name = "payment_time")
 	private Date paymentTime;//支付时间
 
 
