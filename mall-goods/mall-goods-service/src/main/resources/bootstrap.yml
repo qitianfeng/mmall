@@ -26,6 +26,10 @@ spring:
             refresh: true
             data-id: spring-boot-http.yaml # spring boot http配置
             group: COMMON_GROUP # 通用配置组
+          -
+            refresh: true
+            data-id: spring-boot-starter-druid.yaml            # spring-boot-starter-druid.yaml   配置
+            group: COMMON_GROUP # 通用配置组
 
 dubbo:
   scan:
