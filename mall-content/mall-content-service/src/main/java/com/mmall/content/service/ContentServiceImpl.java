@@ -5,9 +5,9 @@ import com.github.pagehelper.PageInfo;
 import com.mmall.content.ContentService;
 import com.mmall.content.bean.Content;
 import com.mmall.content.mapper.ContentMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
@@ -77,12 +77,12 @@ public class ContentServiceImpl implements ContentService {
         Example example=new Example(Content.class);
         Example.Criteria criteria = example.createCriteria();
         if(content!=null){
-            // 
-            if(!StringUtils.isEmpty(content.getId())){
+            //
+            if(null != (content.getId())){
                     criteria.andEqualTo("id",content.getId());
             }
             // 内容类目ID
-            if(!StringUtils.isEmpty(content.getGoodId())){
+            if(null != (content.getGoodId())){
                     criteria.andEqualTo("goodId",content.getGoodId());
             }
             // 内容标题
@@ -102,7 +102,7 @@ public class ContentServiceImpl implements ContentService {
                     criteria.andEqualTo("status",content.getStatus());
             }
             // 排序
-            if(!StringUtils.isEmpty(content.getSortOrder())){
+            if(null != (content.getSortOrder())){
                     criteria.andEqualTo("sortOrder",content.getSortOrder());
             }
         }

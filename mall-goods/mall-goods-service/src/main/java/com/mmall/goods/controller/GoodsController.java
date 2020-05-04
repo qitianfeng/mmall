@@ -16,7 +16,7 @@ import java.util.List;
  * @Author:qitianfeng
  * @Description:
  *****/
-@Api(value = "GoodsController")
+@Api(value = "GoodsController",description = "GoodsController商品模块",tags = "GoodsController")
 @RestController
 @RequestMapping("/goods")
 @CrossOrigin

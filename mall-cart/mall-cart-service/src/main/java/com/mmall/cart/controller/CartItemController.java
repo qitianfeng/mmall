@@ -1,13 +1,12 @@
 package com.mmall.cart.controller;
 
+
 import com.github.pagehelper.PageInfo;
 import com.mmall.cart.CartItemService;
 import com.mmall.cart.bean.CartItem;
 import com.mmall.entity.Result;
 import com.mmall.entity.StatusCode;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -18,7 +17,7 @@ import java.util.List;
  * @Description:
  *****/
 
-@Api(value = "CartItemController")
+@Api(value = "购物车CartItemController",tags = "CartItemController",description = "购物车模块")
 @RestController
 @RequestMapping("/cartItem")
 @CrossOrigin

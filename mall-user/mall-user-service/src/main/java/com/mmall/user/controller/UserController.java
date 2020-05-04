@@ -16,7 +16,7 @@ import java.util.List;
  * @Author:qitianfeng
  * @Description:
  *****/
-@Api(value = "UserController")
+@Api(value = "UserController",description = "UserController用户模块",tags = "UserController")
 @RestController
 @RequestMapping("/user")
 @CrossOrigin

@@ -3,9 +3,11 @@ package com.mmall.order.controller;
 import com.github.pagehelper.PageInfo;
 import com.mmall.entity.Result;
 import com.mmall.entity.StatusCode;
+import com.mmall.goods.GoodsService;
 import com.mmall.order.OrderService;
 import com.mmall.order.bean.Order;
 import io.swagger.annotations.*;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +18,7 @@ import java.util.List;
  * @Author:qitianfeng
  * @Description:
  *****/
-@Api(value = "OrderController")
+@Api(value = "OrderController",description = "OrderController订单模块",tags = "OrderController")
 @RestController
 @RequestMapping("/order")
 @CrossOrigin
@@ -24,6 +26,9 @@ public class OrderController {
 
     @Resource
     private OrderService orderService;
+
+    @Reference
+    private GoodsService goodsService;
 
     /***
      * Order分页条件搜索实现

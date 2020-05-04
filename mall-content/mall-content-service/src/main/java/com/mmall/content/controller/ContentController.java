@@ -16,9 +16,9 @@ import java.util.List;
  * @Author:qitianfeng
  * @Description:
  *****/
-@Api(value = "ContentController")
+@Api(value = "ContentController",description = "ContentController前台广告轮播模块",tags = "ContentController")
 @RestController
-@RequestMapping("/content")
+@RequestMapping("content")
 @CrossOrigin
 public class ContentController {
 
