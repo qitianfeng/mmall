@@ -1,0 +1,52 @@
+server:
+  port: 56040 #启动端口 命令行注入
+
+nacos:
+  server:
+    addr: 127.0.0.1:8848
+
+spring:
+  application:
+    name: order-service
+  main:
+    allow-bean-definition-overriding: true # Spring Boot 2.1 需要设定
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.server.addr}
+        namespace: e7fc9710-30e0-4e12-885c-b95ee254de08
+        cluster-name: DEFAULT
+      config:
+        server-addr: ${nacos.server.addr} # 配置中心地址
+        file-extension: yaml
+        namespace: e7fc9710-30e0-4e12-885c-b95ee254de08 # 命令行注入
+        group: MMALL_GROUP
+        ext-config:
+          -
+            refresh: true
+            data-id: spring-boot-http.yaml # spring boot http配置
+            group: COMMON_GROUP # 通用配置组
+
+dubbo:
+  scan:
+    # dubbo 服务扫描基准包
+    base-packages: com.mmall.order.service
+  protocol:
+    # dubbo 协议
+    name: dubbo
+    port: 20790
+  registry:
+    address: nacos://127.0.0.1:8848
+  application:
+    qos:
+      port: 22250 # dubbo qos端口配置  命令行注入
+  consumer:
+    check: false
+    timeout: 90000
+    retries: -1
+
+logging:
+  config: classpath:log4j2.xml
+
+
+
