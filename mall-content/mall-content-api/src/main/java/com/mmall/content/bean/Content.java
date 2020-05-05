@@ -1,4 +1,4 @@
-package com.mmall.pojo;
+package com.mmall.content.bean;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.*;

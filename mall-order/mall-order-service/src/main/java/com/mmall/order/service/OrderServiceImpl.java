@@ -2,6 +2,7 @@ package com.mmall.order.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.mmall.entity.IdWorker;
 import com.mmall.order.OrderService;
 import com.mmall.order.bean.Order;
 import com.mmall.order.mapper.OrderMapper;
@@ -22,6 +23,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    IdWorker idWorker;
 
     /**
      * Order条件+分页查询
@@ -36,6 +39,7 @@ public class OrderServiceImpl implements OrderService {
         PageHelper.startPage(page,size);
         //搜索条件构建
         Example example = createExample(order);
+//        idWorker.nextId();
         //执行搜索
         return new PageInfo<Order>(orderMapper.selectByExample(example));
     }

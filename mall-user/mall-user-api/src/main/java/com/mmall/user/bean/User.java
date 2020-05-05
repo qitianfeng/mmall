@@ -1,6 +1,8 @@
-package com.mmall.pojo;
+package com.mmall.user.bean;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.ToString;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.lang.Long;
@@ -13,9 +15,11 @@ import java.lang.Integer;
  *****/
 @ApiModel(description = "User",value = "User")
 @Table(name="user")
+@ToString
 public class User implements Serializable{
 
 	@ApiModelProperty(value = "用户ID",required = false)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	@Column(name = "user_id")
 	private Long userId;//用户ID
@@ -48,6 +52,7 @@ public class User implements Serializable{
 	@Column(name = "salt")
 	private String salt;//盐
 
+	@Transient
 	@ApiModelProperty(value = "0 表示普通用户 1 表示 人民币用户",required = false)
 	@Column(name = "user_status")
 	private Integer userStatus;//0 表示普通用户 1 表示 人民币用户

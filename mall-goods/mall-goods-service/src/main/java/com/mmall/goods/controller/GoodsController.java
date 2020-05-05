@@ -6,7 +6,6 @@ import com.mmall.entity.StatusCode;
 import com.mmall.goods.GoodsService;
 import com.mmall.goods.bean.Goods;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,9 +37,9 @@ public class GoodsController {
             @ApiImplicitParam(paramType = "path", name = "size", value = "每页显示条数", required = true, dataType = "Integer")
     })
     @PostMapping(value = "/search/{page}/{size}" )
-    public Result<PageInfo> findPage(@RequestBody(required = false) @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false) Goods goods, @PathVariable  int page, @PathVariable  int size){
+    public Result<PageInfo> findPage(@RequestBody(required = false) @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false)   Goods goods, @PathVariable  int page, @PathVariable  int size){
         //调用GoodsService实现分页条件查询Goods
-        PageInfo<Goods> pageInfo = goodsService.findPage(goods, page, size);
+        PageInfo<  Goods> pageInfo = goodsService.findPage(goods, page, size);
         return new Result(true, StatusCode.OK,"查询成功",pageInfo);
     }
 
@@ -58,7 +57,7 @@ public class GoodsController {
     @GetMapping(value = "/search/{page}/{size}" )
     public Result<PageInfo> findPage(@PathVariable  int page, @PathVariable  int size){
         //调用GoodsService实现分页查询Goods
-        PageInfo<Goods> pageInfo = goodsService.findPage(page, size);
+        PageInfo<  Goods> pageInfo = goodsService.findPage(page, size);
         return new Result<PageInfo>(true,StatusCode.OK,"查询成功",pageInfo);
     }
 
@@ -69,10 +68,10 @@ public class GoodsController {
      */
     @ApiOperation(value = "Goods条件查询",notes = "条件查询Goods方法详情",tags = {"GoodsController"})
     @PostMapping(value = "/search" )
-    public Result<List<Goods>> findList(@RequestBody(required = false) @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false) Goods goods){
+    public Result<List<  Goods>> findList(@RequestBody(required = false) @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false)   Goods goods){
         //调用GoodsService实现条件查询Goods
-        List<Goods> list = goodsService.findList(goods);
-        return new Result<List<Goods>>(true,StatusCode.OK,"查询成功",list);
+        List<  Goods> list = goodsService.findList(goods);
+        return new Result<List<  Goods>>(true,StatusCode.OK,"查询成功",list);
     }
 
     /***
@@ -98,7 +97,7 @@ public class GoodsController {
     @ApiOperation(value = "Goods根据ID修改",notes = "根据ID修改Goods方法详情",tags = {"GoodsController"})
     @ApiImplicitParam(paramType = "path", name = "id", value = "主键ID", required = true, dataType = "Long")
     @PutMapping(value="/{id}")
-    public Result update(@RequestBody @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false) Goods goods,@PathVariable Long id){
+    public Result update(@RequestBody @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false)   Goods goods, @PathVariable Long id){
         //设置主键值
         goods.setGoodsId(id);
         //调用GoodsService实现修改Goods
@@ -113,7 +112,7 @@ public class GoodsController {
      */
     @ApiOperation(value = "Goods添加",notes = "添加Goods方法详情",tags = {"GoodsController"})
     @PostMapping
-    public Result add(@RequestBody  @ApiParam(name = "Goods对象",value = "传入JSON数据",required = true) Goods goods){
+    public Result add(@RequestBody  @ApiParam(name = "Goods对象",value = "传入JSON数据",required = true)   Goods goods){
         //调用GoodsService实现添加Goods
         goodsService.add(goods);
         return new Result(true,StatusCode.OK,"添加成功");
@@ -127,10 +126,10 @@ public class GoodsController {
     @ApiOperation(value = "Goods根据ID查询",notes = "根据ID查询Goods方法详情",tags = {"GoodsController"})
     @ApiImplicitParam(paramType = "path", name = "id", value = "主键ID", required = true, dataType = "Long")
     @GetMapping("/{id}")
-    public Result<Goods> findById(@PathVariable Long id){
+    public Result<  Goods> findById(@PathVariable Long id){
         //调用GoodsService实现根据主键查询Goods
-        Goods goods = goodsService.findById(id);
-        return new Result<Goods>(true,StatusCode.OK,"查询成功",goods);
+           Goods goods = goodsService.findById(id);
+        return new Result<  Goods>(true,StatusCode.OK,"查询成功",goods);
     }
 
     /***
@@ -141,7 +140,7 @@ public class GoodsController {
     @GetMapping
     public Result<List<Goods>> findAll(){
         //调用GoodsService实现查询所有Goods
-        List<Goods> list = goodsService.findAll();
-        return new Result<List<Goods>>(true, StatusCode.OK,"查询成功",list) ;
+        List<  Goods> list = goodsService.findAll();
+        return new Result<List<  Goods>>(true, StatusCode.OK,"查询成功",list) ;
     }
 }

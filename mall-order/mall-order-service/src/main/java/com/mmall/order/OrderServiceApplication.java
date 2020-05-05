@@ -1,9 +1,11 @@
 package com.mmall.order;
 
-import org.mybatis.spring.annotation.MapperScan;
+import com.mmall.entity.IdWorker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.Bean;
+import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -11,5 +13,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class OrderServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(OrderServiceApplication.class,args);
+    }
+
+    @Bean
+    IdWorker idWorker(){
+        return new IdWorker(1,1);
     }
 }
