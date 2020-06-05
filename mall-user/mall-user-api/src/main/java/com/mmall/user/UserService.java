@@ -1,68 +1,43 @@
 package com.mmall.user;
 
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.mmall.user.bean.User;
+import com.mmall.user.vo.LoginVo;
+import com.mmall.user.vo.RegisterVo;
+import com.mmall.utils.PageUtils;
 
 import java.util.List;
+import java.util.Map;
 
-/****
- * @Author:qitianfeng
- * @Description:User业务层接口
- *****/
-public interface UserService {
+/**
+ *
+ *
+ * @author chenshun
+ * @email sunlightcs@gmail.com
+ * @date 2020-06-03 15:58:49
+ */
+public interface UserService extends IService<User> {
 
-    /***
-     * User多条件分页查询
-     * @param user
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<User> findPage(User user, int page, int size);
+    PageUtils queryPage(Map<String, Object> params);
 
-    /***
-     * User分页查询
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<User> findPage(int page, int size);
-
-    /***
-     * User多条件搜索方法
-     * @param user
-     * @return
-     */
-    List<User> findList(User user);
-
-    /***
-     * 删除User
-     * @param id
-     */
-    void delete(Long id);
-
-    /***
-     * 修改User数据
-     * @param user
-     */
-    void update(User user);
-
-    /***
-     * 新增User
-     * @param user
-     */
-    void add(User user);
 
     /**
-     * 根据ID查询User
-     * @param id
+     * 登录
+     * @param user
      * @return
      */
-     User findById(Long id);
+    String login(LoginVo user);
 
-    /***
-     * 查询所有User
+    /**
+     * 注册
+     * @param user
+     */
+    void register(RegisterVo user);
+
+    /**
+     * 获取用户信息
      * @return
      */
-    List<User> findAll();
+    LoginVo getLoginInfo();
+
 }

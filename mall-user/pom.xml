@@ -16,9 +16,4 @@
         <module>mall-user-api</module>
         <module>mall-user-service</module>
     </modules>
-    <dependencies>
-
-    </dependencies>
-
-
 </project>

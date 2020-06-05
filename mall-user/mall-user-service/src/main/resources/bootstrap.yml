@@ -3,7 +3,7 @@ server:
 
 nacos:
   server:
-    addr: 127.0.0.1:8848
+    addr: 101.132.142.155:8848
 
 spring:
   application:
@@ -14,13 +14,13 @@ spring:
     nacos:
       discovery:
         server-addr: ${nacos.server.addr}
-        namespace: e7fc9710-30e0-4e12-885c-b95ee254de08
+        namespace: d3d284c3-8dae-4bd0-a592-f3ff2e6a71e5
         cluster-name: DEFAULT
       config:
         server-addr: ${nacos.server.addr} # 配置中心地址
         file-extension: yaml
-        namespace: e7fc9710-30e0-4e12-885c-b95ee254de08 # 命令行注入
-        group: MMALL_GROUP
+        namespace: d3d284c3-8dae-4bd0-a592-f3ff2e6a71e5 # 命令行注入
+        group: SHANJUPAY_GROUP
         ext-config:
           -
             refresh: true
@@ -40,7 +40,7 @@ dubbo:
     name: dubbo
     port: 20806
   registry:
-    address: nacos://127.0.0.1:8848
+    address: nacos://101.132.142.155:8848
   application:
     qos:
       port: 22242 # dubbo qos端口配置  命令行注入
@@ -51,6 +51,3 @@ dubbo:
 
 logging:
   config: classpath:log4j2.xml
-
-
-

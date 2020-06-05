@@ -1,170 +1,99 @@
 package com.mmall.user.service;
 
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mmall.base.QiException;
 import com.mmall.user.UserService;
 import com.mmall.user.bean.User;
 import com.mmall.user.mapper.UserMapper;
-import org.apache.commons.lang3.StringUtils;
+import com.mmall.user.vo.LoginVo;
+import com.mmall.user.vo.RegisterVo;
+import com.mmall.utils.JwtUtils;
+import com.mmall.utils.MD5;
+import com.mmall.utils.PageUtils;
+import com.mmall.utils.Query;
 import org.apache.dubbo.config.annotation.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
+import java.util.Map;
 
-/****
- * @Author:qitianfeng
- * @Description:User业务层接口实现类
- *****/
+
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Autowired
-    private UserMapper userMapper;
-
-
-    /**
-     * User条件+分页查询
-     *
-     * @param user 查询条件
-     * @param page 页码
-     * @param size 页大小
-     * @return 分页结果
-     */
     @Override
-    public PageInfo<User> findPage(User user, int page, int size) {
-        //分页
-        PageHelper.startPage(page, size);
-        //搜索条件构建
-        Example example = createExample(user);
-        //执行搜索
-        return new PageInfo<User>(userMapper.selectByExample(example));
+    public PageUtils queryPage(Map<String, Object> params) {
+        IPage<User> page = this.page(
+                new Query<User>().getPage(params),
+                new QueryWrapper<User>()
+        );
+
+        return new PageUtils(page);
     }
 
     /**
-     * User分页查询
-     *
-     * @param page
-     * @param size
-     * @return
-     */
-    @Override
-    public PageInfo<User> findPage(int page, int size) {
-        //静态分页
-        PageHelper.startPage(page, size);
-        //分页查询
-        return new PageInfo<User>(userMapper.selectAll());
-    }
-
-    /**
-     * User条件查询
+     * 登录
      *
      * @param user
      * @return
      */
     @Override
-    public List<User> findList(User user) {
-        //构建查询条件
-        Example example = createExample(user);
-        //根据构建的条件查询数据
-        return userMapper.selectByExample(example);
-    }
+    public String login(LoginVo user) {
 
+        String userName = user.getUserName();
+        String password = user.getUserPassword();
 
-    /**
-     * User构建查询对象
-     *
-     * @param user
-     * @return
-     */
-    public Example createExample(User user) {
-        Example example = new Example(User.class);
-        Example.Criteria criteria = example.createCriteria();
-        if (user != null) {
-            // 用户ID
-            if (user.getUserId() != null) {
-                criteria.andEqualTo("userId", user.getUserId());
-            }
-            // 用户名
-            if (!StringUtils.isEmpty(user.getUserName())) {
-                criteria.andEqualTo("userName", user.getUserName());
-            }
-            // 用户密码
-            if (!StringUtils.isEmpty(user.getUserPassword())) {
-                criteria.andEqualTo("userPassword", user.getUserPassword());
-            }
-            // 用户积分
-            if (!StringUtils.isEmpty(user.getUserScore())) {
-                criteria.andEqualTo("userScore", user.getUserScore());
-            }
-            // 用户手机
-            if (!StringUtils.isEmpty(user.getUserMobile())) {
-                criteria.andEqualTo("userMobile", user.getUserMobile());
-            }
-            // 用户余额
-            if (!StringUtils.isEmpty(user.getUserMoney())) {
-                criteria.andEqualTo("userMoney", user.getUserMoney());
-            }
-            // 用户注册时间
-            if (user.getUserRegTime() != null) {
-                criteria.andEqualTo("userRegTime", user.getUserRegTime());
-            }
-            // 盐
-            if (!StringUtils.isEmpty(user.getSalt())) {
-                criteria.andEqualTo("salt", user.getSalt());
-            }
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUserName,userName);
+        User user1 = baseMapper.selectOne(wrapper);
+
+        if (user1 == null) {
+            throw new QiException(20001,"用户不存在");
         }
-        return example;
+        String token = JwtUtils.getJwtToken(user1.getUserId(), userName);
+
+        return token;
     }
 
     /**
-     * 删除
-     *
-     * @param id
-     */
-    @Override
-    public void delete(Long id) {
-        userMapper.deleteByPrimaryKey(id);
-    }
-
-    /**
-     * 修改User
+     * 注册
      *
      * @param user
      */
     @Override
-    public void update(User user) {
-        userMapper.updateByPrimaryKey(user);
+    public void register(RegisterVo user) {
+
+        String mobile = user.getUserMobile();
+        String userName = user.getUserName();
+        String password = user.getUserPassword();
+
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUserMobile, mobile);
+        User selectOne = baseMapper.selectOne(wrapper);
+        if (selectOne != null) {
+            throw new QiException(20001,"手机号已被注册");
+        }
+
+        String encrypt = MD5.encrypt(password);
+
+        User user1 = new User();
+        user1.setUserName(userName);
+        user1.setUserMobile(mobile);
+        user1.setUserPassword(password);
+        baseMapper.insert(user1);
     }
 
     /**
-     * 增加User
-     *
-     * @param user
-     */
-    @Override
-    public void add(User user) {
-        userMapper.insert(user);
-    }
-
-    /**
-     * 根据ID查询User
-     * @param id
-     * @return
-     */
-    @Override
-    public User findById(Long id) {
-        return userMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 查询User全部数据
+     * 获取用户信息
      *
      * @return
      */
     @Override
-    public List<User> findAll() {
-        return userMapper.selectAll();
+    public LoginVo getLoginInfo() {
+        return null;
     }
+
 }
