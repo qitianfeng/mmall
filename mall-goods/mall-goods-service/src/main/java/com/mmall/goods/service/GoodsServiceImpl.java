@@ -1,157 +1,147 @@
 package com.mmall.goods.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmall.goods.GoodsService;
-import com.mmall.goods.bean.Goods;
+import com.mmall.goods.entity.Goods;
 import com.mmall.goods.mapper.GoodsMapper;
-import org.apache.dubbo.config.annotation.Service;
+import com.mmall.goods.vo.GoodsVo;
+import com.mmall.utils.PageUtils;
+import com.mmall.utils.Query;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
-import tk.mybatis.mapper.entity.Example;
+import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
  * @Description:Goods业务层接口实现类
  *****/
 @Service
-public class GoodsServiceImpl implements GoodsService {
+public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements GoodsService {
 
     @Autowired
     private GoodsMapper goodsMapper;
 
-
-    /**
-     * Goods条件+分页查询
-     * @param goods 查询条件
-     * @param page 页码
-     * @param size 页大小
-     * @return 分页结果
-     */
     @Override
-    public PageInfo<Goods> findPage(Goods goods, int page, int size){
-        //分页
-        PageHelper.startPage(page,size);
-        //搜索条件构建
-        Example example = createExample(goods);
-        //执行搜索
-        return new PageInfo<Goods>(goodsMapper.selectByExample(example));
-    }
+    public PageUtils queryPage(Map<String, Object> params) {
+        String pageIndex = (String) params.get("page");
+        String limit = (String) params.get("limit");
+        LambdaQueryWrapper<Goods> wrapper = new LambdaQueryWrapper<>();
 
-    /**
-     * Goods分页查询
-     * @param page
-     * @param size
-     * @return
-     */
-    @Override
-    public PageInfo<Goods> findPage(int page, int size){
-        //静态分页
-        PageHelper.startPage(page,size);
-        //分页查询
-        return new PageInfo<Goods>(goodsMapper.selectAll());
-    }
+        IPage<Goods> page = this.page(
+                new Query<Goods>().getPage(params),
+                new QueryWrapper<Goods>()
+        );
 
-    /**
-     * Goods条件查询
-     * @param goods
-     * @return
-     */
-    @Override
-    public List<Goods> findList(Goods goods){
-        //构建查询条件
-        Example example = createExample(goods);
-        //根据构建的条件查询数据
-        return goodsMapper.selectByExample(example);
+        return new PageUtils(page);
     }
 
 
     /**
-     * Goods构建查询对象
-     * @param goods
+     * 根据查询参数指定查询
+     *
+     * @param params
      * @return
      */
-    public Example createExample(Goods goods){
-        Example example=new Example(Goods.class);
-        Example.Criteria criteria = example.createCriteria();
-        if(goods!=null){
-            // 商品ID
-            if(!StringUtils.isEmpty(goods.getGoodsId())){
-                    criteria.andEqualTo("goodsId",goods.getGoodsId());
-            }
-            // 商品名字
-            if(!StringUtils.isEmpty(goods.getGoodsName())){
-                    criteria.andEqualTo("goodsName",goods.getGoodsName());
-            }
-            // 商品价格
-            if(!StringUtils.isEmpty(goods.getGoodsPrice())){
-                    criteria.andEqualTo("goodsPrice",goods.getGoodsPrice());
-            }
-            // 商品描述
-            if(!StringUtils.isEmpty(goods.getGoodsDesc())){
-                    criteria.andEqualTo("goodsDesc",goods.getGoodsDesc());
-            }
-            // 商品添加时间
-            if(!StringUtils.isEmpty(goods.getGoodAddTime())){
-                    criteria.andEqualTo("goodAddTime",goods.getGoodAddTime());
-            }
-            // 商品图片
-            if(!StringUtils.isEmpty(goods.getSgoodImage())){
-                    criteria.andEqualTo("sgoodImage",goods.getSgoodImage());
-            }
-            // 商品库存
-            if(!StringUtils.isEmpty(goods.getGoodNum())){
-                    criteria.andEqualTo("goodNum",goods.getGoodNum());
-            }
+    @Override
+    public PageUtils queryByParam(Map<String, Object> params) {
+        LambdaQueryWrapper<Goods> wrapper = new LambdaQueryWrapper<>();
+        String goodsName = (String) params.get("goodsName");
+        String pageIndex = (String) params.get("page");
+        String limit = (String) params.get("limit");
+
+        wrapper.like(Goods::getGoodsName,goodsName);
+
+        Page<Goods> goodsPage = new Page<>();
+        goodsPage.setSize(Integer.parseInt(limit));
+        goodsPage.setCurrent(Integer.parseInt(pageIndex));
+        IPage<Goods>page = goodsMapper.selectPage(goodsPage,wrapper);
+        List<Goods> goodsList = page.getRecords();
+        PageUtils pageUtils = new PageUtils();
+        pageUtils.setList(goodsList);
+        pageUtils.setCurrPage(Integer.parseInt(pageIndex));
+        pageUtils.setPageSize(Integer.parseInt(limit));
+        pageUtils.setTotalCount((int) page.getTotal());
+        return pageUtils;
+    }
+
+    /**
+     * 分页查询首页商品
+     *  @param goodsPage
+     * @param goodsVo
+     */
+    @Override
+    public IPage<Goods> selectPageByParam(Page<Goods> goodsPage, GoodsVo goodsVo) {
+        LambdaQueryWrapper<Goods> wrapper = new LambdaQueryWrapper<>();
+        if (!StringUtils.isEmpty(goodsVo.getGoodsName())) {
+            wrapper.eq(Goods::getGoodsName,goodsVo.getGoodsName());
         }
-        return example;
+
+        if(!StringUtils.isEmpty(goodsVo.getGoodsAuthor())) {
+            wrapper.eq(Goods::getGoodsAuthor,goodsVo.getGoodsAuthor());
+        }
+
+        if (goodsVo.getGoodsPrice()!=null) {
+            wrapper.orderByDesc(Goods::getGoodsPrice);
+        }
+        IPage<Goods> goodsIPage = baseMapper.selectPage((IPage<Goods>) goodsPage, wrapper);
+        return goodsIPage;
+
     }
 
     /**
-     * 删除
-     * @param id
-     */
-    @Override
-    public void delete(Long id){
-        goodsMapper.deleteByPrimaryKey(id);
-    }
-
-    /**
-     * 修改Goods
-     * @param goods
-     */
-    @Override
-    public void update(Goods goods){
-        goodsMapper.updateByPrimaryKey(goods);
-    }
-
-    /**
-     * 增加Goods
-     * @param goods
-     */
-    @Override
-    public void add(Goods goods){
-        goodsMapper.insert(goods);
-    }
-
-    /**
-     * 根据ID查询Goods
-     * @param id
+     * 批量上架
+     *
+     * @param ids
      * @return
      */
     @Override
-    public Goods findById(Long id){
-        return  goodsMapper.selectByPrimaryKey(id);
+    public int putMany(Long[] ids) {
+        LambdaUpdateWrapper<Goods> wrapper = new LambdaUpdateWrapper<>();
+
+        List<Long> longs = Arrays.asList(ids);
+
+        wrapper.in(Goods::getGoodsId,longs);
+        Goods goods = new Goods();
+        goods.setGoodsStatus(1);
+        //批量修改
+//        Integer integer = goodsMapper.updatGoodsxiaJiajiaStatus(id);
+        int i = goodsMapper.update(goods, wrapper);
+        return  i;
     }
 
+
+
     /**
-     * 查询Goods全部数据
-     * @return
+     * 商品批量下架
+     *
+     * @param id
      */
     @Override
-    public List<Goods> findAll() {
-        return goodsMapper.selectAll();
+    public int pullMany(Long[] id) {
+
+        LambdaUpdateWrapper<Goods> wrapper = new LambdaUpdateWrapper<>();
+
+        List<Long> longs = Arrays.asList(id);
+
+        wrapper.in(Goods::getGoodsId,longs);
+        Goods goods = new Goods();
+        goods.setGoodsStatus(0);
+        //批量修改
+//        Integer integer = goodsMapper.updatGoodsxiaJiajiaStatus(id);
+        int i = goodsMapper.update(goods, wrapper);
+        return  i;
+
     }
+
+
+
 }

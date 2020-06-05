@@ -1,15 +1,26 @@
 package com.mmall.goods.controller;
 
-import com.github.pagehelper.PageInfo;
-import com.mmall.entity.Result;
-import com.mmall.entity.StatusCode;
+import com.mmall.content.ContentService;
+import com.mmall.content.entity.Content;
 import com.mmall.goods.GoodsService;
-import com.mmall.goods.bean.Goods;
-import io.swagger.annotations.*;
+import com.mmall.goods.entity.FastDFSFile;
+import com.mmall.goods.entity.Goods;
+import com.mmall.goods.utils.FastDFSClient;
+import com.mmall.utils.PageUtils;
+import com.mmall.utils.R;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import org.apache.dubbo.config.annotation.Reference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.AbstractController;
 
-import javax.annotation.Resource;
-import java.util.List;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
@@ -17,130 +28,144 @@ import java.util.List;
  *****/
 @Api(value = "GoodsController",description = "GoodsController商品模块",tags = "GoodsController")
 @RestController
-@RequestMapping("/goods")
-@CrossOrigin
-public class GoodsController {
+//@RequestMapping("/goods/")
+public class GoodsController{
 
-    @Resource
+    @Autowired
     private GoodsService goodsService;
+    @Reference
+    private ContentService contentService;
 
-    /***
-     * Goods分页条件搜索实现
-     * @param goods
-     * @param page
-     * @param size
-     * @return
+    /**
+     * 列表
      */
-    @ApiOperation(value = "Goods条件分页查询",notes = "分页条件查询Goods方法详情",tags = {"GoodsController"})
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "page", value = "当前页", required = true, dataType = "Integer"),
-            @ApiImplicitParam(paramType = "path", name = "size", value = "每页显示条数", required = true, dataType = "Integer")
-    })
-    @PostMapping(value = "/search/{page}/{size}" )
-    public Result<PageInfo> findPage(@RequestBody(required = false) @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false)   Goods goods, @PathVariable  int page, @PathVariable  int size){
-        //调用GoodsService实现分页条件查询Goods
-        PageInfo<  Goods> pageInfo = goodsService.findPage(goods, page, size);
-        return new Result(true, StatusCode.OK,"查询成功",pageInfo);
+    @RequestMapping("/list")
+//    @RequiresPermissions("goods:goods:list")
+    public R list(@RequestParam Map<String, Object> params){
+        PageUtils page = goodsService.queryPage(params);
+        return R.ok().put("page", page);
+    }
+    @GetMapping("param")
+//    @RequiresPermissions("goods:goods:list")
+    public R queryByParam(@RequestParam Map<String, Object> params){
+
+        PageUtils page = goodsService.queryByParam(params);
+
+        return R.ok().put("page", page);
     }
 
-    /***
-     * Goods分页搜索实现
-     * @param page:当前页
-     * @param size:每页显示多少条
-     * @return
+
+    /**
+     * 信息
      */
-    @ApiOperation(value = "Goods分页查询",notes = "分页查询Goods方法详情",tags = {"GoodsController"})
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", name = "page", value = "当前页", required = true, dataType = "Integer"),
-            @ApiImplicitParam(paramType = "path", name = "size", value = "每页显示条数", required = true, dataType = "Integer")
-    })
-    @GetMapping(value = "/search/{page}/{size}" )
-    public Result<PageInfo> findPage(@PathVariable  int page, @PathVariable  int size){
-        //调用GoodsService实现分页查询Goods
-        PageInfo<  Goods> pageInfo = goodsService.findPage(page, size);
-        return new Result<PageInfo>(true,StatusCode.OK,"查询成功",pageInfo);
+    @RequestMapping("info/{goodsId}")
+//    @RequiresPermissions("goods:goods:info")
+    public R info(@PathVariable("goodsId") Long goodsId){
+        Goods goods = goodsService.getById(goodsId);
+
+        return R.ok().put("goods", goods);
     }
 
-    /***
-     * 多条件搜索品牌数据
-     * @param goods
-     * @return
+    /**
+     * 保存
      */
-    @ApiOperation(value = "Goods条件查询",notes = "条件查询Goods方法详情",tags = {"GoodsController"})
-    @PostMapping(value = "/search" )
-    public Result<List<  Goods>> findList(@RequestBody(required = false) @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false)   Goods goods){
-        //调用GoodsService实现条件查询Goods
-        List<  Goods> list = goodsService.findList(goods);
-        return new Result<List<  Goods>>(true,StatusCode.OK,"查询成功",list);
+    @RequestMapping("/save")
+//    @RequiresPermissions({"goods:goods:save,goods:goods:update,goods:goods:upload"})
+    public R save(@RequestBody Goods goods){
+        goods.setGoodsAddTime(new Date());
+        //默认上架
+        goods.setGoodsStatus(1);
+        goodsService.save(goods);
+        Content content = new Content();
+        content.setGoodId(goods.getGoodsId());
+        content.setPic(goods.getGoodsImage());
+        content.setTitle(goods.getGoodsName());
+        //默认下线
+        content.setStatus("0");
+        contentService.save(content);
+        return R.ok();
     }
 
-    /***
-     * 根据ID删除品牌数据
+    /**
+     * 修改
+     */
+    @RequestMapping("/update")
+//    @RequiresPermissions("goods:goods:update")
+    public R update(@RequestBody Goods goods){
+
+
+        goods.setGoodsAddTime(new Date());;
+        contentService.updateContentByGoodsId(goods.getGoodsId(),goods.getGoodsImage());
+        goodsService.updateById(goods);
+
+        return R.ok();
+    }
+
+    /**
+     * 删除
+     */
+    @RequestMapping("/delete")
+//    @RequiresPermissions("goods:goods:delete")
+    public R delete(@RequestBody Long[] goodsIds){
+        contentService.deleteByGoodsId(goodsIds);
+        goodsService.removeByIds(Arrays.asList(goodsIds));
+        return R.ok();
+    }
+
+    /**
+     * 商品上架或批量上架
+     * @param goodsIds
+     * @return
+     */
+    @ApiOperation(value = "Goods上架",notes = "Goods上架",tags = {"GoodsController"})
+    @PostMapping("put")
+    public R put(@RequestBody Long[] goodsIds){
+        goodsService.putMany(goodsIds);
+        return R.ok();
+    }
+
+
+    /**
+     * 商品下架
      * @param id
      * @return
      */
-    @ApiOperation(value = "Goods根据ID删除",notes = "根据ID删除Goods方法详情",tags = {"GoodsController"})
-    @ApiImplicitParam(paramType = "path", name = "id", value = "主键ID", required = true, dataType = "Long")
-    @DeleteMapping(value = "/{id}" )
-    public Result delete(@PathVariable Long id){
-        //调用GoodsService实现根据主键删除
-        goodsService.delete(id);
-        return new Result(true,StatusCode.OK,"删除成功");
+    @ApiOperation(value = "Goods下架",notes = "Goods下架",tags = {"GoodsController"})
+    @PostMapping("/pull")
+    public R pull(@RequestBody Long[] id){
+        Integer pull = goodsService.pullMany(id);
+        return R.ok();
     }
 
-    /***
-     * 修改Goods数据
-     * @param goods
-     * @param id
-     * @return
-     */
-    @ApiOperation(value = "Goods根据ID修改",notes = "根据ID修改Goods方法详情",tags = {"GoodsController"})
-    @ApiImplicitParam(paramType = "path", name = "id", value = "主键ID", required = true, dataType = "Long")
-    @PutMapping(value="/{id}")
-    public Result update(@RequestBody @ApiParam(name = "Goods对象",value = "传入JSON数据",required = false)   Goods goods, @PathVariable Long id){
-        //设置主键值
-        goods.setGoodsId(id);
-        //调用GoodsService实现修改Goods
-        goodsService.update(goods);
-        return new Result(true,StatusCode.OK,"修改成功");
+
+
+    @ApiOperation("上传文件")
+    @ApiImplicitParam(value = "上传的文件", name = "file", required = true, dataType = "MultipartFile", paramType = "query")
+//    @RequiresPermissions("goods:goods:upload")
+    @PostMapping("/upload")
+    public String upload(@RequestParam("file") MultipartFile file) {
+
+        try {
+            FastDFSFile fastDFSFile = new FastDFSFile(
+                    file.getOriginalFilename(),//原来文件名
+                    file.getBytes(),//文件的字节数组
+                    org.springframework.util.StringUtils.getFilenameExtension(file.getOriginalFilename()));
+            String[] upload = FastDFSClient.upload(fastDFSFile);
+            //  upload[0] group1
+            //  upload[1] M00/00/00/wKjThF1aW9CAOUJGAAClQrJOYvs424.jpg
+            //3. 拼接图片的全路径返回
+            System.out.println(FastDFSClient.getTrackerUrl() + "/" + upload[0] + "/" + upload[1]);
+            return FastDFSClient.getTrackerUrl() + "/" + upload[0] + "/" + upload[1];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 
-    /***
-     * 新增Goods数据
-     * @param goods
-     * @return
-     */
-    @ApiOperation(value = "Goods添加",notes = "添加Goods方法详情",tags = {"GoodsController"})
-    @PostMapping
-    public Result add(@RequestBody  @ApiParam(name = "Goods对象",value = "传入JSON数据",required = true)   Goods goods){
-        //调用GoodsService实现添加Goods
-        goodsService.add(goods);
-        return new Result(true,StatusCode.OK,"添加成功");
-    }
 
-    /***
-     * 根据ID查询Goods数据
-     * @param id
-     * @return
-     */
-    @ApiOperation(value = "Goods根据ID查询",notes = "根据ID查询Goods方法详情",tags = {"GoodsController"})
-    @ApiImplicitParam(paramType = "path", name = "id", value = "主键ID", required = true, dataType = "Long")
-    @GetMapping("/{id}")
-    public Result<  Goods> findById(@PathVariable Long id){
-        //调用GoodsService实现根据主键查询Goods
-           Goods goods = goodsService.findById(id);
-        return new Result<  Goods>(true,StatusCode.OK,"查询成功",goods);
-    }
 
-    /***
-     * 查询Goods全部数据
-     * @return
-     */
-    @ApiOperation(value = "查询所有Goods",notes = "查询所Goods有方法详情",tags = {"GoodsController"})
-    @GetMapping
-    public Result<List<Goods>> findAll(){
-        //调用GoodsService实现查询所有Goods
-        List<  Goods> list = goodsService.findAll();
-        return new Result<List<  Goods>>(true, StatusCode.OK,"查询成功",list) ;
-    }
+
+
+
 }
