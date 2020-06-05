@@ -1,70 +1,37 @@
 package com.mmall.cart;
 
-
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.mmall.cart.bean.CartItem;
+import com.mmall.utils.PageUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
-/****
- * @Author:qitianfeng
- * @Description:CartItem业务层接口
- *****/
+public interface CartItemService extends IService<CartItem> {
 
-public interface CartItemService {
+    Boolean deleteByGoodId(Long userId, Long goodId);
 
-    /***
-     * CartItem多条件分页查询
-     * @param cartItem
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<CartItem> findPage(CartItem cartItem, int page, int size);
+    void editCheckAll(String userId, Integer checkAll);
 
-    /***
-     * CartItem分页查询
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<CartItem> findPage(int page, int size);
+    void addCart(String userId, String goodId);
 
-    /***
-     * CartItem多条件搜索方法
-     * @param cartItem
-     * @return
-     */
-    List<CartItem> findList(CartItem cartItem);
-
-    /***
-     * 删除CartItem
-     * @param id
-     */
-    void delete(Long id);
-
-    /***
-     * 修改CartItem数据
-     * @param cartItem
-     */
-    void update(CartItem cartItem);
-
-    /***
-     * 新增CartItem
-     * @param cartItem
-     */
-    void add(CartItem cartItem);
+    PageUtils queryPage(Map<String, Object> params);
 
     /**
-     * 根据ID查询CartItem
-     * @param id
+     * 返回用户的购物车
+     * @param userId
      * @return
      */
-     CartItem findById(Long id);
+    List<CartItem> getCartByUserId(String userId);
 
-    /***
-     * 查询所有CartItem
-     * @return
+    /**
+     * 更新购物车里单个商品的数量
+     * @param userId
+     * @param goodId
+     * @param goodNum
+     * @param checked
      */
-    List<CartItem> findAll();
+    void cartEdit(String userId, Long goodId, BigDecimal goodNum, Integer checked);
 }
+

@@ -1,17 +1,25 @@
 package com.mmall.cart.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmall.cart.CartItemService;
 import com.mmall.cart.bean.CartItem;
 import com.mmall.cart.mapper.CartItemMapper;
+import com.mmall.goods.GoodsService;
+import com.mmall.goods.entity.Goods;
+import com.mmall.utils.PageUtils;
+import com.mmall.utils.Query;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
-import tk.mybatis.mapper.entity.Example;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
@@ -19,149 +27,130 @@ import java.util.List;
  *****/
 @Service
 @Slf4j
-public class CartItemServiceImpl implements CartItemService {
+public class CartItemServiceImpl extends ServiceImpl<CartItemMapper, CartItem> implements CartItemService {
 
     @Autowired
     private CartItemMapper cartItemMapper;
 
+    @Reference
+    private GoodsService goodsService;
+
 
     /**
-     * CartItem条件+分页查询
-     * @param cartItem 查询条件
-     * @param page 页码
-     * @param size 页大小
-     * @return 分页结果
-     */
-    @Override
-    public PageInfo<CartItem> findPage(CartItem cartItem, int page, int size){
-        //分页
-        PageHelper.startPage(page,size);
-        //搜索条件构建
-        Example example = createExample(cartItem);
-        //执行搜索
-        return new PageInfo<CartItem>(cartItemMapper.selectByExample(example));
-    }
-
-    /**
-     * CartItem分页查询
-     * @param page
-     * @param size
+     * 根据商品id删除
+     *
+     * @param goodId
      * @return
      */
     @Override
-    public PageInfo<CartItem> findPage(int page, int size){
-        //静态分页
-        PageHelper.startPage(page,size);
-        //分页查询
-        return new PageInfo<CartItem>(cartItemMapper.selectAll());
-    }
+    public Boolean deleteByGoodId(Long userId, Long goodId) {
 
-    /**
-     * CartItem条件查询
-     * @param cartItem
-     * @return
-     */
-    @Override
-    public List<CartItem> findList(CartItem cartItem){
-        //构建查询条件
-        Example example = createExample(cartItem);
-        //根据构建的条件查询数据
-        return cartItemMapper.selectByExample(example);
+        LambdaQueryWrapper<CartItem> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CartItem::getUserId, userId);
+        wrapper.eq(CartItem::getGoodId, goodId);
+        boolean remove = this.remove(wrapper);
+        return remove;
     }
 
 
     /**
-     * CartItem构建查询对象
-     * @param cartItem
-     * @return
+     * 更新购物车为全部选中 或取消全选
+     *
+     * @param userId
+     * @param checkAll
      */
-    public Example createExample(CartItem cartItem){
-        Example example=new Example(CartItem.class);
-        Example.Criteria criteria = example.createCriteria();
-        if(cartItem!=null){
-            // 购物车ID
-            if(!StringUtils.isEmpty(cartItem.getCartId())){
-                    criteria.andEqualTo("cartId",cartItem.getCartId());
-            }
-            // 商品ID
-            if(!StringUtils.isEmpty(cartItem.getGoodId())){
-                    criteria.andEqualTo("goodId",cartItem.getGoodId());
-            }
-            // 用户ID
-            if(!StringUtils.isEmpty(cartItem.getUserId())){
-                    criteria.andEqualTo("userId",cartItem.getUserId());
-            }
-            // 购买数量
-            if(!StringUtils.isEmpty(cartItem.getQuantity())){
-                    criteria.andEqualTo("quantity",cartItem.getQuantity());
-            }
-            // 商品主图
-            if(!StringUtils.isEmpty(cartItem.getGoodPic())){
-                    criteria.andEqualTo("goodPic",cartItem.getGoodPic());
-            }
-            // 商品名字
-            if(!StringUtils.isEmpty(cartItem.getGoodName())){
-                    criteria.andEqualTo("goodName",cartItem.getGoodName());
-            }
-            // 创建时间
-            if(!StringUtils.isEmpty(cartItem.getCreateDate())){
-                    criteria.andEqualTo("createDate",cartItem.getCreateDate());
-            }
-            // 修改时间
-            if(!StringUtils.isEmpty(cartItem.getModifyDate())){
-                    criteria.andEqualTo("modifyDate",cartItem.getModifyDate());
-            }
-            // 删除状态
-            if(!StringUtils.isEmpty(cartItem.getDeleteStatus())){
-                    criteria.andEqualTo("deleteStatus",cartItem.getDeleteStatus());
-            }
+    @Override
+    public void editCheckAll(String userId, Integer checkAll) {
+
+        CartItem cartItem = new CartItem();
+        //todo
+        cartItem.setUserId(userId);
+
+        cartItem.setCheckStatus(checkAll);
+
+        ///更新
+        cartItemMapper.updateById(cartItem);
+    }
+
+    /**
+     * 将商品加入到购物车
+     *
+     * @param userId
+     */
+    @Override
+    public void addCart(String userId, String goodId) {
+        CartItem cartItem = new CartItem();
+        cartItem.setUserId(userId);
+        cartItem.setGoodId(goodId);
+        LambdaQueryWrapper<CartItem> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CartItem::getGoodId, goodId);
+        wrapper.eq(CartItem::getUserId, userId);
+        //查询数据看是否存在该商品，如果有存在，则数量加一
+        CartItem item = this.getOne(wrapper);
+        if (item != null) {
+            item.setQuantity(item.getQuantity().add( (new BigDecimal(1))));
         }
-        return example;
-    }
 
-    /**
-     * 删除
-     * @param id
-     */
-    @Override
-    public void delete(Long id){
-        cartItemMapper.deleteByPrimaryKey(id);
-    }
+        //远程调用goods服务
+        Goods goods = goodsService.getById(goodId);
 
-    /**
-     * 修改CartItem
-     * @param cartItem
-     */
-    @Override
-    public void update(CartItem cartItem){
-        cartItemMapper.updateByPrimaryKey(cartItem);
-    }
-
-    /**
-     * 增加CartItem
-     * @param cartItem
-     */
-    @Override
-    public void add(CartItem cartItem){
+        cartItem.setQuantity(new BigDecimal(1));
+        cartItem.setCreateDate(new Date());
+        cartItem.setCheckStatus(1);
+        cartItem.setGoodName(goods.getGoodsName());
+        cartItem.setGoodPic(goods.getGoodsImage());
+        cartItem.setModifyDate(new Date());
+        cartItem.setGoodId(goodId);
         cartItemMapper.insert(cartItem);
+
+
+    }
+
+    @Override
+    public PageUtils queryPage(Map<String, Object> params) {
+        String pageIndex = (String) params.get("page");
+        String limit = (String) params.get("limit");
+        LambdaQueryWrapper<Goods> wrapper = new LambdaQueryWrapper<>();
+
+        IPage<CartItem> page = this.page(
+                new Query<CartItem>().getPage(params),
+                new QueryWrapper<CartItem>()
+        );
+        return new PageUtils(page);
     }
 
     /**
-     * 根据ID查询CartItem
-     * @param id
+     * 返回用户的购物车
+     *
+     * @param userId
      * @return
      */
     @Override
-    public CartItem findById(Long id){
-        return  cartItemMapper.selectByPrimaryKey(id);
+    public List<CartItem> getCartByUserId(String userId) {
+        LambdaQueryWrapper<CartItem> wrapper = new LambdaQueryWrapper<>();
+        wrapper.orderByDesc(CartItem::getCreateDate);
+        wrapper.eq(CartItem::getUserId, userId);
+        List<CartItem> list = this.list(wrapper);
+        return list;
     }
 
     /**
-     * 查询CartItem全部数据
-     * @return
+     * 更新购物车里单个商品的数量
+     *
+     * @param userId
+     * @param goodId
+     * @param goodNum
+     * @param checked
      */
     @Override
-    public List<CartItem> findAll() {
-        return cartItemMapper.selectAll();
+    public void cartEdit(String userId, Long goodId, BigDecimal goodNum, Integer checked) {
+        LambdaQueryWrapper<CartItem> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CartItem::getUserId,userId);
+        wrapper.eq(CartItem::getGoodId,goodId);
+        CartItem cartItem = baseMapper.selectOne(wrapper);
+        Integer check = checked == 1 ? 1 : 0;
+        cartItem.setQuantity(goodNum);
+        cartItem.setCheckStatus(check);
+        baseMapper.updateById(cartItem);
     }
 }
