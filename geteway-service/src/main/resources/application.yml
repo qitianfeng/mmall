@@ -1,0 +1,48 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: goods_route
+          uri: lb://goods-service
+          predicates:
+          - Path=/api/goods/**
+          filters:
+            - RewritePath=/api/goods/(?<segment>.*),/goods/$\{segment}
+
+        - id: content_route
+          uri: lb://content-service
+          predicates:
+          - Path=/api/content/**
+          filters:
+            - RewritePath=/api/content/(?<segment>.*),/content/$\{segment}
+
+        - id: user_route
+          uri: lb://user-service
+          predicates:
+          - Path=/api/user/**
+          filters:
+            - RewritePath=/api/user/(?<segment>.*),/user/$\{segment}
+
+
+        - id: cart_route
+          uri: lb://cart-service
+          predicates:
+          - Path=/api/cart/**
+          filters:
+            - RewritePath=/api/cart/(?<segment>.*),/cart/$\{segment}
+
+
+        - id: order_route
+          uri: lb://order-service
+          predicates:
+          - Path=/api/order/**
+          filters:
+            - RewritePath=/api/order/(?<segment>.*),/order/$\{segment}
+
+
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}

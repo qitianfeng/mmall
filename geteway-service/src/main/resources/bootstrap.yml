@@ -1,0 +1,32 @@
+server:
+  port: 88 #启动端口 命令行注入
+
+nacos:
+  server:
+    addr: 101.132.142.155:8848
+
+spring:
+  application:
+    name: gateway-service
+  main:
+    allow-bean-definition-overriding: true # Spring Boot 2.1 需要设定
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.server.addr}
+        namespace: d6326f61-fd77-4e41-b579-9ef330a7881d
+        cluster-name: DEFAULT
+      config:
+        server-addr: ${nacos.server.addr} # 配置中心地址
+        file-extension: yaml
+        namespace: d6326f61-fd77-4e41-b579-9ef330a7881d # 命令行注入
+        group: MMALL_GROUP
+        ext-config:
+          -
+            refresh: true
+            data-id: spring-boot-http.yaml # spring boot http配置
+            group: COMMON_GROUP # 通用配置组
+          -
+            refresh: true
+            data-id: spring-boot-starter-druid.yaml            # spring-boot-starter-druid.yaml   配置
+            group: COMMON_GROUP # 通用配置组
