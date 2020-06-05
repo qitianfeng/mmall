@@ -1,68 +1,39 @@
 package com.mmall.content;
 
-import com.github.pagehelper.PageInfo;
-import com.mmall.content.bean.Content;
 
-import java.util.List;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mmall.content.entity.Content;
+import com.mmall.utils.PageUtils;
+
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
  * @Description:Content业务层接口
  *****/
-public interface ContentService {
+public interface ContentService extends IService<Content> {
 
-    /***
-     * Content多条件分页查询
-     * @param content
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<Content> findPage(Content content, int page, int size);
+    PageUtils queryPage(Map<String, Object> params);
 
-    /***
-     * Content分页查询
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<Content> findPage(int page, int size);
-
-    /***
-     * Content多条件搜索方法
-     * @param content
-     * @return
-     */
-    List<Content> findList(Content content);
-
-    /***
-     * 删除Content
-     * @param id
-     */
-    void delete(Long id);
-
-    /***
-     * 修改Content数据
-     * @param content
-     */
-    void update(Content content);
-
-    /***
-     * 新增Content
-     * @param content
-     */
-    void add(Content content);
+    void updateContentByGoodsId(Long goodsId, String goodsImage);
 
     /**
-     * 根据ID查询Content
-     * @param id
-     * @return
+     * 广告上线
+     * @param contentIds
      */
-     Content findById(Long id);
+    void changeActive(Long[] contentIds);
 
-    /***
-     * 查询所有Content
-     * @return
+    /**
+     * 广告下线
+     * @param contentIds
      */
-    List<Content> findAll();
+    void changeInvalid(Long[] contentIds);
+
+    /**
+     * 根据GoodsId删除对应的Content
+     * @param goodsIds
+     */
+    int deleteByGoodsId(Long[] goodsIds);
+
+    PageUtils queryByParam(Map<String, Object> params);
 }

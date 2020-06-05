@@ -1,157 +1,124 @@
 package com.mmall.content.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mmall.content.ContentService;
-import com.mmall.content.bean.Content;
+import com.mmall.content.entity.Content;
 import com.mmall.content.mapper.ContentMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.Service;
+import com.mmall.utils.PageUtils;
+import com.mmall.utils.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import tk.mybatis.mapper.entity.Example;
+import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
  * @Description:Content业务层接口实现类
  *****/
 @Service
-public class ContentServiceImpl implements ContentService {
+public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> implements ContentService {
 
     @Autowired
-    private ContentMapper contentMapper;
+    ContentMapper contentMapper;
+    @Override
+    public PageUtils queryPage(Map<String, Object> params) {
+        IPage<Content> page = this.page(
+                new Query<Content>().getPage(params),
+                new QueryWrapper<Content>()
+        );
 
+        return new PageUtils(page);
+    }
+
+    @Override
+    public void updateContentByGoodsId(Long goodsId, String goodsImage) {
+        LambdaUpdateWrapper<Content> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(Content::getGoodId,goodsId);
+        Content content = new Content();
+        content.setPic(goodsImage);
+        contentMapper.update(content,wrapper);
+
+    }
 
     /**
-     * Content条件+分页查询
-     * @param content 查询条件
-     * @param page 页码
-     * @param size 页大小
-     * @return 分页结果
+     * 广告上线
+     *
+     * @param contentIds
      */
     @Override
-    public PageInfo<Content> findPage(Content content, int page, int size){
-        //分页
-        PageHelper.startPage(page,size);
-        //搜索条件构建
-        Example example = createExample(content);
-        //执行搜索
-        return new PageInfo<Content>(contentMapper.selectByExample(example));
+    public void changeActive(Long[] contentIds) {
+
+        List<Long> longs = Arrays.asList(contentIds);
+
+        LambdaUpdateWrapper<Content> contentLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        contentLambdaUpdateWrapper.in(Content::getId,longs);
+
+        Content content = new Content();
+        content.setStatus("1");
+        contentMapper.update(content,contentLambdaUpdateWrapper);
     }
 
     /**
-     * Content分页查询
-     * @param page
-     * @param size
-     * @return
+     * 广告下线
+     *
+     * @param contentIds
      */
     @Override
-    public PageInfo<Content> findPage(int page, int size){
-        //静态分页
-        PageHelper.startPage(page,size);
-        //分页查询
-        return new PageInfo<Content>(contentMapper.selectAll());
+    public void changeInvalid(Long[] contentIds) {
+
+        List<Long> longs = Arrays.asList(contentIds);
+
+        LambdaUpdateWrapper<Content> contentLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        contentLambdaUpdateWrapper.in(Content::getId,longs);
+
+        Content content = new Content();
+        content.setStatus("0");
+        contentMapper.update(content,contentLambdaUpdateWrapper);
     }
 
     /**
-     * Content条件查询
-     * @param content
-     * @return
+     * 根据GoodsId删除对应的Content
+     *
+     * @param goodsIds
      */
     @Override
-    public List<Content> findList(Content content){
-        //构建查询条件
-        Example example = createExample(content);
-        //根据构建的条件查询数据
-        return contentMapper.selectByExample(example);
+    public int deleteByGoodsId(Long[] goodsIds) {
+
+        LambdaQueryWrapper<Content> wrapper = new LambdaQueryWrapper<>();
+
+        wrapper.in(Content::getGoodId,Arrays.asList(goodsIds));
+
+        int delete = contentMapper.delete(wrapper);
+        return delete;
+
+
     }
 
-
-    /**
-     * Content构建查询对象
-     * @param content
-     * @return
-     */
-    public Example createExample(Content content){
-        Example example=new Example(Content.class);
-        Example.Criteria criteria = example.createCriteria();
-        if(content!=null){
-            //
-            if(null != (content.getId())){
-                    criteria.andEqualTo("id",content.getId());
-            }
-            // 内容类目ID
-            if(null != (content.getGoodId())){
-                    criteria.andEqualTo("goodId",content.getGoodId());
-            }
-            // 内容标题
-            if(!StringUtils.isEmpty(content.getTitle())){
-                    criteria.andLike("title","%"+content.getTitle()+"%");
-            }
-            // 链接
-            if(!StringUtils.isEmpty(content.getUrl())){
-                    criteria.andEqualTo("url",content.getUrl());
-            }
-            // 图片绝对路径
-            if(!StringUtils.isEmpty(content.getPic())){
-                    criteria.andEqualTo("pic",content.getPic());
-            }
-            // 状态,0无效，1有效
-            if(!StringUtils.isEmpty(content.getStatus())){
-                    criteria.andEqualTo("status",content.getStatus());
-            }
-            // 排序
-            if(null != (content.getSortOrder())){
-                    criteria.andEqualTo("sortOrder",content.getSortOrder());
-            }
-        }
-        return example;
-    }
-
-    /**
-     * 删除
-     * @param id
-     */
     @Override
-    public void delete(Long id){
-        contentMapper.deleteByPrimaryKey(id);
+    public PageUtils queryByParam(Map<String, Object> params) {
+        LambdaQueryWrapper<Content> wrapper = new LambdaQueryWrapper<>();
+        String title = (String) params.get("title");
+        String pageIndex = (String) params.get("page");
+        String limit = (String) params.get("limit");
+        wrapper.like(Content::getTitle,title);
+        Page<Content> goodsPage = new Page<>();
+        goodsPage.setSize(Integer.parseInt(limit));
+        goodsPage.setCurrent(Integer.parseInt(pageIndex));
+        IPage<Content>page = contentMapper.selectPage(goodsPage,wrapper);
+        List<Content> goodsList = page.getRecords();
+        PageUtils pageUtils = new PageUtils();
+        pageUtils.setList(goodsList);
+        pageUtils.setCurrPage(Integer.parseInt(pageIndex));
+        pageUtils.setPageSize(Integer.parseInt(limit));
+        pageUtils.setTotalCount((int) page.getTotal());
+        return pageUtils;
     }
 
-    /**
-     * 修改Content
-     * @param content
-     */
-    @Override
-    public void update(Content content){
-        contentMapper.updateByPrimaryKey(content);
-    }
-
-    /**
-     * 增加Content
-     * @param content
-     */
-    @Override
-    public void add(Content content){
-        contentMapper.insert(content);
-    }
-
-    /**
-     * 根据ID查询Content
-     * @param id
-     * @return
-     */
-    @Override
-    public Content findById(Long id){
-        return  contentMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 查询Content全部数据
-     * @return
-     */
-    @Override
-    public List<Content> findAll() {
-        return contentMapper.selectAll();
-    }
 }

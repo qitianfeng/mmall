@@ -1,6 +1,9 @@
 package com.mmall.content.mapper;
-import com.mmall.content.bean.Content;
-import tk.mybatis.mapper.common.Mapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mmall.content.entity.Content;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface ContentMapper extends Mapper<Content> {
+@Mapper
+public interface ContentMapper extends BaseMapper<Content> {
+
 }
