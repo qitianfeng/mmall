@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@MapperScan("com.edu.sso.mapper")
+@MapperScan("com.mmall.user.mapper")
 public class EduMybatisConfig {
 
     /**

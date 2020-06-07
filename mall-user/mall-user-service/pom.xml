@@ -12,6 +12,7 @@
     <artifactId>mall-user-service</artifactId>
 
     <dependencies>
+
         <!--MySQL数据库驱动-->
         <dependency>
             <groupId>mysql</groupId>

@@ -43,17 +43,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public String login(LoginVo user) {
 
-        String userName = user.getUserName();
-        String password = user.getUserPassword();
+        String mobile = user.getMobile();
+        String password = user.getPassword();
 
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUserName,userName);
+        wrapper.eq(User::getMobile,mobile);
         User user1 = baseMapper.selectOne(wrapper);
 
         if (user1 == null) {
             throw new QiException(20001,"用户不存在");
         }
-        String token = JwtUtils.getJwtToken(user1.getUserId(), userName);
+        if (!MD5.encrypt(password).equals(user1.getPassword())) {
+            throw new QiException(20001,"密码不正确");
+        }
+        String token = JwtUtils.getJwtToken(user1.getId(), user1.getNickname());
 
         return token;
     }
@@ -66,12 +69,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void register(RegisterVo user) {
 
-        String mobile = user.getUserMobile();
-        String userName = user.getUserName();
-        String password = user.getUserPassword();
+        String mobile = user.getMobile();
+        String userName = user.getNickname();
+        String password = user.getPassword();
 
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUserMobile, mobile);
+        wrapper.eq(User::getMobile, mobile);
         User selectOne = baseMapper.selectOne(wrapper);
         if (selectOne != null) {
             throw new QiException(20001,"手机号已被注册");
@@ -80,9 +83,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String encrypt = MD5.encrypt(password);
 
         User user1 = new User();
-        user1.setUserName(userName);
-        user1.setUserMobile(mobile);
-        user1.setUserPassword(password);
+        user1.setNickname(userName);
+        user1.setMobile(mobile);
+        user1.setPassword(MD5.encrypt(password));
         baseMapper.insert(user1);
     }
 

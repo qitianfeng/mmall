@@ -1,9 +1,6 @@
 package com.mmall.user.bean;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 
 import java.math.BigDecimal;
 import java.io.Serializable;
@@ -27,24 +24,21 @@ public class User extends RegisterVo implements Serializable {
 	/**
 	 * 用户ID
 	 */
-	@TableId
-	private String userId;
+	@TableId(type = IdType.ID_WORKER_STR)
+	private String id;
 	/**
 	 * 用户名
 	 */
-	private String userName;
+	private String nickname;
 	/**
 	 * 用户密码
 	 */
-	private String userPassword;
-	/**
-	 * 用户积分
-	 */
-	private String userScore;
+	private String password;
+
 	/**
 	 * 用户手机
 	 */
-	private String userMobile;
+	private String mobile;
 	/**
 	 * 用户注册时间
 	 */

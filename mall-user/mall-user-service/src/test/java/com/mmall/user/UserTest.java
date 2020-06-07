@@ -16,20 +16,4 @@ public class UserTest {
     @Resource
     private UserService userService;
 
-    @Autowired
-    UserMapper userMapper;
-    @Test
-    public void test(){
-
-        User byId = userService.findById(123456L);
-        System.err.println(byId);
-    }
-    @Test
-    public void test1(){
-        User user = new User();
-        user.setUserName("111");
-        user.setUserPassword("111");
-        user.setMobile("1111");
-        userMapper.insertSelective(user);
-    }
 }

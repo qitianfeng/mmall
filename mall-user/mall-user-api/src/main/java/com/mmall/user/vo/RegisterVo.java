@@ -16,13 +16,13 @@ public class RegisterVo implements Serializable {
 	/**
 	 * 用户名
 	 */
-	private String userName;
+	private String nickname;
 	/**
 	 * 用户密码
 	 */
-	private String userPassword;
+	private String password;
 	/**
 	 * 用户手机
 	 */
-	private String userMobile;
+	private String mobile;
 }
