@@ -18,6 +18,7 @@ import java.util.Map;
  *****/
 @Api(value = "ContentController",description = "ContentController前台广告轮播模块",tags = "ContentController")
 @RestController
+@RequestMapping("content")
 public class ContentController{
     @Autowired
     private ContentService contentService;
