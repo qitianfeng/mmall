@@ -1,9 +1,11 @@
+/*
 package com.mmall.base;
 
 
 import com.google.common.base.Predicates;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -36,3 +38,4 @@ public class SwaggerConfig {
     }
 
 }
+*/
