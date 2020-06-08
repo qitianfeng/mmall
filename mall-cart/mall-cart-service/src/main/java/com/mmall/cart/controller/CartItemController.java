@@ -1,10 +1,12 @@
 package com.mmall.cart.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mmall.cart.CartItemService;
 import com.mmall.cart.bean.CartItem;
 import com.mmall.utils.JwtUtils;
 import com.mmall.utils.PageUtils;
 import com.mmall.utils.R;
+import com.mmall.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +27,10 @@ public class CartItemController {
      * 列表
      */
     @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params){
+    public Result list(@RequestParam Map<String, Object> params){
         PageUtils page = cartItemService.queryPage(params);
 
-        return R.ok().put("message","查询成功");
+        return Result.ok().data("cart",page);
     }
 
 
@@ -36,80 +38,76 @@ public class CartItemController {
      * 信息
      */
     @RequestMapping("/info/{cartId}")
-    public R info(@PathVariable("cartId") Long cartId){
-        CartItem cartItem = cartItemService.getById(cartId);
-
-        return R.ok().put("message","查询成功");
+    public Result info(@PathVariable("cartId") String cartId,HttpServletRequest request){
+        String userId = JwtUtils.getMemberIdByJwtToken(request);
+        LambdaQueryWrapper<CartItem> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CartItem::getUserId,userId);
+        wrapper.eq(CartItem::getCartId,cartId);
+        CartItem one = cartItemService.getOne(wrapper);
+        return Result.ok().data("cartInfo",one);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody CartItem cartItem){
+    public Result save(@RequestBody CartItem cartItem,HttpServletRequest request){
         cartItemService.save(cartItem);
 
-        return R.ok().put("message","保存成功");
+        return Result.ok();
     }
 
     /**
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody CartItem cartItem){
+    public Result update(@RequestBody CartItem cartItem){
+
         cartItemService.updateById(cartItem);
 
-        return R.ok().put("message","更新成功");
+        return Result.ok();
     }
 
-    /**
-     * 删除
-     */
-    @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] cartIds){
-        cartItemService.removeByIds(Arrays.asList(cartIds));
 
-        return R.ok().put("message","查询成功");
-    }
     //查询当前用户的购物车数据
     @GetMapping("/cartList")
-    public R cartList(HttpServletRequest request){
-//        Long userId = SecurityUtil.getUserId();
+    public Result cartList(HttpServletRequest request){
         String userId = JwtUtils.getMemberIdByJwtToken(request);
         List<CartItem> cartItemList = cartItemService.getCartByUserId(userId);
-        return R.ok().put("message","查询成功");
+        return Result.ok().data("cartList",cartItemList);
     }
     //购物车删除
     @PostMapping("/cartDel")
-    public R cartDel(@RequestBody Long goodId){
+    public Result cartDel(@RequestBody Long goodId,HttpServletRequest request){
 //        Long userId = SecurityUtil.getUserId();
-//        Integer count =  cartItemService.deleteByGoodId(userId,goodId);
-        return R.ok().put("message","查询成功");
+        String userId = JwtUtils.getMemberIdByJwtToken(request);
+        Boolean count =  cartItemService.deleteByGoodId(userId,goodId);
+        return Result.ok();
     }
     //修改商品数量
     @PostMapping("cartEdit")
-    public R cartEdit(@RequestBody Long goodId, @RequestBody BigDecimal goodNum, @RequestBody Integer checked,HttpServletRequest request){
+    public Result cartEdit(@RequestBody Long goodId, @RequestBody BigDecimal goodNum, @RequestBody Integer checked,HttpServletRequest request){
         String userId = JwtUtils.getMemberIdByJwtToken(request);
         cartItemService.cartEdit(userId,goodId,goodNum,checked);
-        return R.ok().put("message","修改成功");
+        return Result.ok();
     }
 
     /**
      * 是否全部选中
      */
     @PostMapping("editCheckAll")
-    public R editCheckAll(@RequestBody Integer checkAll,HttpServletRequest request){
+    public Result editCheckAll(@RequestBody Integer checkAll,HttpServletRequest request){
         String userId = JwtUtils.getMemberIdByJwtToken(request);
         cartItemService.editCheckAll(userId,checkAll);
-        return R.ok().put("message","查询成功");
+        return Result.ok();
     }
 
     //加入到购物车
     @PostMapping("addCart")
-    public R addCart(@RequestParam("goodId") String goodId,HttpServletRequest request){
+    public Result addCart(@RequestParam("goodId") String goodId,HttpServletRequest request){
         String userId = JwtUtils.getMemberIdByJwtToken(request);
         cartItemService.addCart(userId,goodId);
-        return R.ok().put("message","加入购物车成功");
+        return Result.ok().message("加入购物车成功");
     }
 
 
