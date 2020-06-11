@@ -13,14 +13,36 @@
 
 <dependencies>
     <dependency>
+        <groupId>com.github.wxpay</groupId>
+        <artifactId>wxpay-sdk</artifactId>
+        <version>0.0.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.alipay.sdk</groupId>
+        <artifactId>alipay-sdk-java</artifactId>
+        <version>3.3.49.ALL</version>
+    </dependency>
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
+    </dependency>
+    <dependency>
         <groupId>com.mall</groupId>
         <artifactId>mall-goods-api</artifactId>
         <version>1.0-SNAPSHOT</version>
     </dependency>
+    <!--MySQL数据库驱动-->
     <dependency>
-        <groupId>com.mall</groupId>
-        <artifactId>mall-common-db</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
         <groupId>com.mall</groupId>
@@ -120,6 +142,18 @@
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>
         <version>RELEASE</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.mall</groupId>
+        <artifactId>mall-user-api</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.mall</groupId>
+        <artifactId>mall-cart-api</artifactId>
+        <version>1.0-SNAPSHOT</version>
         <scope>compile</scope>
     </dependency>
 

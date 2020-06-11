@@ -1,169 +1,93 @@
 package com.mmall.order.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.mmall.entity.IdWorker;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mmall.cart.CartItemService;
+import com.mmall.cart.bean.CartItem;
+import com.mmall.goods.GoodsService;
+import com.mmall.goods.entity.Goods;
 import com.mmall.order.OrderService;
-import com.mmall.order.bean.Order;
+import com.mmall.order.entity.Order;
 import com.mmall.order.mapper.OrderMapper;
-import org.apache.dubbo.config.annotation.Service;
+import com.mmall.user.UserService;
+import com.mmall.user.bean.User;
+import com.mmall.utils.IdWorker;
+import com.mmall.utils.PageUtils;
+import com.mmall.utils.Query;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
-import tk.mybatis.mapper.entity.Example;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
  * @Description:Order业务层接口实现类
  *****/
 @Service
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
+
+    @Reference
+    private GoodsService goodsService;
+
+    @Reference
+    private UserService userService;
+
+    @Reference
+    private CartItemService cartItemService;
 
     @Autowired
-    private OrderMapper orderMapper;
+    private IdWorker idWorker;
 
-    @Autowired
-    IdWorker idWorker;
-
-    /**
-     * Order条件+分页查询
-     * @param order 查询条件
-     * @param page 页码
-     * @param size 页大小
-     * @return 分页结果
-     */
     @Override
-    public PageInfo<Order> findPage(Order order, int page, int size){
-        //分页
-        PageHelper.startPage(page,size);
-        //搜索条件构建
-        Example example = createExample(order);
-//        idWorker.nextId();
-        //执行搜索
-        return new PageInfo<Order>(orderMapper.selectByExample(example));
+    public PageUtils queryPage(Map<String, Object> params) {
+        IPage<Order> page = this.page(
+                new Query<Order>().getPage(params),
+                new QueryWrapper<Order>()
+        );
+
+        return new PageUtils(page);
     }
 
     /**
-     * Order分页查询
-     * @param page
-     * @param size
-     * @return
+     * 根据用户id创建订单
+     *
+     * @param goodsId
+     * @param token
      */
     @Override
-    public PageInfo<Order> findPage(int page, int size){
-        //静态分页
-        PageHelper.startPage(page,size);
-        //分页查询
-        return new PageInfo<Order>(orderMapper.selectAll());
-    }
+    public void createOrder(Long[] goodsId, String token) {
 
-    /**
-     * Order条件查询
-     * @param order
-     * @return
-     */
-    @Override
-    public List<Order> findList(Order order){
-        //构建查询条件
-        Example example = createExample(order);
-        //根据构建的条件查询数据
-        return orderMapper.selectByExample(example);
-    }
+        for (Long id : goodsId) {
 
+            Goods byId = goodsService.getById(id);
 
-    /**
-     * Order构建查询对象
-     * @param order
-     * @return
-     */
-    public Example createExample(Order order){
-        Example example=new Example(Order.class);
-        Example.Criteria criteria = example.createCriteria();
-        if(order!=null){
-            // 订单ID
-            if(!StringUtils.isEmpty(order.getOrderId())){
-                    criteria.andEqualTo("orderId",order.getOrderId());
-            }
-            // 用户ID
-            if(!StringUtils.isEmpty(order.getUserId())){
-                    criteria.andEqualTo("userId",order.getUserId());
-            }
-            // 创建时间
-            if(!StringUtils.isEmpty(order.getCreateTime())){
-                    criteria.andEqualTo("createTime",order.getCreateTime());
-            }
-            // 用户名
-            if(!StringUtils.isEmpty(order.getUserName())){
-                    criteria.andEqualTo("userName",order.getUserName());
-            }
-            // 订单总金额
-            if(!StringUtils.isEmpty(order.getTotalAmount())){
-                    criteria.andEqualTo("totalAmount",order.getTotalAmount());
-            }
-            // 应付金额（实际支付金额）
-            if(!StringUtils.isEmpty(order.getPayAmount())){
-                    criteria.andEqualTo("payAmount",order.getPayAmount());
-            }
-            // 支付方式：0->未支付；1->支付宝；
-            if(!StringUtils.isEmpty(order.getPayType())){
-                    criteria.andEqualTo("payType",order.getPayType());
-            }
-            // 用户余额
-            if(!StringUtils.isEmpty(order.getMoneyAmount())){
-                    criteria.andEqualTo("moneyAmount",order.getMoneyAmount());
-            }
-            // 支付时间
-            if(!StringUtils.isEmpty(order.getPaymentTime())){
-                    criteria.andEqualTo("paymentTime",order.getPaymentTime());
-            }
+            Order order = new Order();
+
+            order.setOrderId(String.valueOf(idWorker.nextId()));
+            order.setGoodsPic(byId.getGoodsImage());
+            order.setPayAmount(byId.getGoodsPrice());
+            order.setUserId(token);
+            User user = userService.getById(token);
+            order.setUserName(user.getNickname());
+            LambdaQueryWrapper<CartItem> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(CartItem::getGoodId,id);
+            wrapper.eq(CartItem::getUserId,token);
+            CartItem cartItem = cartItemService.getOne(wrapper);
+            order.setTotalAmount(cartItem.getQuantity());
+            order.setGoodsName(byId.getGoodsName());
+            //计算总额
+            order.setPayAmount(cartItem.getQuantity().multiply(byId.getGoodsPrice()));
+            order.setCreateTime(new Date());
+
+            //保存订单
+            baseMapper.insert(order);
         }
-        return example;
     }
 
-    /**
-     * 删除
-     * @param id
-     */
-    @Override
-    public void delete(Long id){
-        orderMapper.deleteByPrimaryKey(id);
-    }
-
-    /**
-     * 修改Order
-     * @param order
-     */
-    @Override
-    public void update(Order order){
-        orderMapper.updateByPrimaryKey(order);
-    }
-
-    /**
-     * 增加Order
-     * @param order
-     */
-    @Override
-    public void add(Order order){
-        orderMapper.insert(order);
-    }
-
-    /**
-     * 根据ID查询Order
-     * @param id
-     * @return
-     */
-    @Override
-    public Order findById(Long id){
-        return  orderMapper.selectByPrimaryKey(id);
-    }
-
-    /**
-     * 查询Order全部数据
-     * @return
-     */
-    @Override
-    public List<Order> findAll() {
-        return orderMapper.selectAll();
-    }
 }

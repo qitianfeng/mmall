@@ -54,3 +54,15 @@ logging:
 
 
 
+alipay:
+  pay:
+    APPID:
+    APP_PRIVATE_KEY:
+    APP_PUBLIC_KEY :
+    GATEWAY_URL: https://openapi.alipaydev.com/gateway.do
+    FORMAT: JSON
+    SINGN_TYPE: RSA2
+    #异步通知地址
+    NOTIFY_URL: http://localhost:8233/order/paylog/notify
+    #同步通知地址
+    RETURN_URL: http://localhost:8233/order/paylog/return

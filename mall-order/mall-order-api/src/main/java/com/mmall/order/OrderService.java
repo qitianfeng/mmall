@@ -1,68 +1,24 @@
 package com.mmall.order;
 
-import com.github.pagehelper.PageInfo;
-import com.mmall.order.bean.Order;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.mmall.order.entity.Order;
+import com.mmall.utils.PageUtils;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /****
  * @Author:qitianfeng
  * @Description:Order业务层接口
  *****/
-public interface OrderService {
+public interface OrderService extends IService<Order> {
 
-    /***
-     * Order多条件分页查询
-     * @param order
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<Order> findPage(Order order, int page, int size);
-
-    /***
-     * Order分页查询
-     * @param page
-     * @param size
-     * @return
-     */
-    PageInfo<Order> findPage(int page, int size);
-
-    /***
-     * Order多条件搜索方法
-     * @param order
-     * @return
-     */
-    List<Order> findList(Order order);
-
-    /***
-     * 删除Order
-     * @param id
-     */
-    void delete(Long id);
-
-    /***
-     * 修改Order数据
-     * @param order
-     */
-    void update(Order order);
-
-    /***
-     * 新增Order
-     * @param order
-     */
-    void add(Order order);
+    PageUtils queryPage(Map<String, Object> params);
 
     /**
-     * 根据ID查询Order
-     * @param id
-     * @return
+     * 根据用户id创建订单
+     * @param goodsId
+     * @param token
      */
-     Order findById(Long id);
-
-    /***
-     * 查询所有Order
-     * @return
-     */
-    List<Order> findAll();
+    void createOrder(Long[] goodsId, String token);
 }

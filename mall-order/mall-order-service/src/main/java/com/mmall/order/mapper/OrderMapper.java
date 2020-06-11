@@ -1,6 +1,9 @@
 package com.mmall.order.mapper;
-import com.mmall.order.bean.Order;
-import tk.mybatis.mapper.common.Mapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mmall.order.entity.Order;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface OrderMapper extends Mapper<Order> {
+@Mapper
+public interface OrderMapper extends BaseMapper<Order> {
+
 }
