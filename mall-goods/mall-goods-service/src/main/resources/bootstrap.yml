@@ -45,7 +45,7 @@ dubbo:
     name: dubbo
     port: 21890
   registry:
-    address: nacos://101.132.142.155:8848
+    address: nacos:/:8848
   application:
     qos:
       port: 22340 # dubbo qos端口配置  命令行注入
