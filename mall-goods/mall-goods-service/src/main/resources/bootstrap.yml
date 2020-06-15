@@ -3,7 +3,7 @@ server:
 
 nacos:
   server:
-    addr: 101.132.142.155:8848
+    addr: 
 
 spring:
   application:
@@ -31,10 +31,10 @@ spring:
             data-id: spring-boot-starter-druid.yaml            # spring-boot-starter-druid.yaml   配置
             group: COMMON_GROUP # 通用配置组
   redis:
-    host: 101.132.142.155
+    host: 
     database: 0
     port: 6379
-    password: 123456
+    password: 
 
 dubbo:
   scan:
